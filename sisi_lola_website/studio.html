@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sisi Lola Studio — Production Control Room</title>
+<meta name="description" content="The control room behind every Sisi Lola episode — native voice clone, scripts, and renderer in one place.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+:root {
+  --teal: #0f6b6b;
+  --teal-dark: #094848;
+  --gold: #e0a93b;
+  --gold-bright: #f6c14b;
+  --ink: #11231f;
+  --paper: #fbf6ec;
+  --paper-soft: #f3e9d2;
+  --line: rgba(17, 35, 31, 0.12);
+  --shadow: 0 1px 2px rgba(17,35,31,.04), 0 8px 24px rgba(17,35,31,.06);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--teal-dark); text-decoration: none; }
+a:hover { color: var(--gold); }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+/* Top bar */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(251, 246, 236, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.topbar__inner {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px; padding: 0 24px; max-width: 1200px; margin: 0 auto;
+}
+.topbar__brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 18px; }
+.topbar__brand svg { width: 28px; height: 28px; }
+.topbar__brand span { background: linear-gradient(90deg, var(--teal-dark), var(--gold)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.topbar__nav { display: flex; gap: 28px; font-size: 14px; font-weight: 500; }
+.topbar__nav a { color: var(--ink); opacity: 0.8; transition: opacity .2s; }
+.topbar__nav a:hover { opacity: 1; color: var(--teal-dark); }
+
+/* Hero */
+.studio-hero {
+  padding: 80px 0 60px;
+  background: linear-gradient(180deg, var(--paper), var(--paper-soft));
+  border-bottom: 1px solid var(--line);
+}
+.studio-hero__eyebrow {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--teal-dark); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.studio-hero__eyebrow::before, .studio-hero__eyebrow::after {
+  content: ''; flex: 0 1 40px; height: 1px; background: linear-gradient(90deg, transparent, var(--teal-dark), transparent);
+}
+.studio-hero__title {
+  font-family: 'Lora', serif; font-style: italic; font-weight: 500;
+  font-size: clamp(40px, 6vw, 72px); line-height: 1.05;
+  margin: 0 0 24px; max-width: 900px;
+}
+.studio-hero__title .accent { color: var(--gold); font-style: normal; font-family: 'Plus Jakarta Sans'; font-weight: 800; }
+.studio-hero__sub {
+  font-size: 18px; max-width: 720px; opacity: 0.78; margin: 0 0 32px;
+}
+.studio-hero__stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 24px; max-width: 720px;
+}
+.studio-hero__stat {
+  padding: 16px 0; border-top: 1px solid var(--line);
+}
+.studio-hero__stat-num { font-size: 32px; font-weight: 800; color: var(--teal-dark); display: block; line-height: 1; }
+.studio-hero__stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.65; margin-top: 8px; display: block; }
+
+/* Pipeline section */
+.section { padding: 80px 0; }
+.section + .section { border-top: 1px solid var(--line); }
+.section__head {
+  display: flex; justify-content: space-between; align-items: end; gap: 32px;
+  margin-bottom: 48px; flex-wrap: wrap;
+}
+.section__eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-dark); margin: 0 0 12px; }
+.section__title {
+  font-family: 'Lora', serif; font-style: italic; font-weight: 500;
+  font-size: clamp(28px, 4vw, 44px); margin: 0;
+}
+.section__desc { font-size: 16px; opacity: 0.78; max-width: 480px; margin: 0; }
+
+/* Pipeline stages */
+.pipeline {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.stage {
+  background: #fff; border: 1px solid var(--line); border-radius: 16px;
+  padding: 28px 24px; box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+}
+.stage__number {
+  font-family: 'Lora', serif; font-style: italic; font-size: 14px;
+  color: var(--gold); font-weight: 500; margin-bottom: 8px;
+}
+.stage__title { font-size: 18px; font-weight: 700; margin: 0 0 12px; color: var(--teal-dark); }
+.stage__body { font-size: 14px; line-height: 1.6; opacity: 0.82; }
+.stage__tech {
+  margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line);
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.55;
+  font-weight: 600;
+}
+
+/* Episodes grid */
+.episodes-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+.episode-card {
+  background: #fff; border: 1px solid var(--line); border-radius: 16px;
+  overflow: hidden; box-shadow: var(--shadow);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.episode-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(17,35,31,.12); }
+.episode-card video { width: 100%; display: block; background: var(--ink); }
+.episode-card__body { padding: 20px 24px 24px; }
+.episode-card__tag {
+  display: inline-block; padding: 4px 10px; font-size: 11px;
+  font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--teal-dark); background: rgba(15, 107, 107, 0.1); border-radius: 999px;
+  margin-bottom: 12px;
+}
+.episode-card__title { font-size: 22px; font-weight: 700; margin: 0 0 8px; }
+.episode-card__title .yoruba { font-family: 'Lora', serif; font-style: italic; font-weight: 500; color: var(--teal-dark); }
+.episode-card__meta { display: flex; gap: 16px; font-size: 12px; opacity: 0.65; }
+.episode-card__audio { width: 100%; margin-top: 16px; }
+
+/* Script viewer */
+.script-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  margin-top: 32px; align-items: stretch;
+}
+@media (max-width: 800px) { .script-row { grid-template-columns: 1fr; } }
+.script-tabs {
+  display: flex; gap: 4px; padding: 6px; background: var(--paper-soft);
+  border-radius: 999px; margin-bottom: 16px;
+}
+.script-tab {
+  flex: 1; padding: 8px 16px; font-size: 13px; font-weight: 600;
+  border: none; background: transparent; border-radius: 999px;
+  cursor: pointer; color: var(--ink); opacity: 0.6;
+  transition: all .2s;
+}
+.script-tab.active { background: #fff; opacity: 1; box-shadow: 0 1px 3px rgba(0,0,0,.08); color: var(--teal-dark); }
+.script-pane {
+  background: #fff; border: 1px solid var(--line); border-radius: 16px;
+  padding: 24px; height: 100%; box-shadow: var(--shadow);
+}
+.script-pane__label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--gold); font-weight: 700; margin-bottom: 12px;
+}
+.script-pane pre {
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px;
+  line-height: 1.65; white-space: pre-wrap; word-wrap: break-word;
+  margin: 0; opacity: 0.85;
+}
+
+/* Voice section */
+.voice-card {
+  background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+  color: #fff; border-radius: 16px; padding: 40px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center;
+}
+@media (max-width: 800px) { .voice-card { grid-template-columns: 1fr; padding: 32px 24px; } }
+.voice-card__title { font-family: 'Lora', serif; font-style: italic; font-size: 28px; margin: 0 0 12px; }
+.voice-card__desc { opacity: 0.9; margin: 0 0 16px; font-size: 15px; }
+.voice-card__meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px; }
+.voice-card__stat { padding: 12px 16px; background: rgba(255,255,255,0.08); border-radius: 10px; }
+.voice-card__stat strong { display: block; font-size: 22px; font-weight: 800; margin-bottom: 2px; }
+.voice-card__stat span { font-size: 11px; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.08em; }
+.voice-card audio { width: 100%; }
+
+/* Repo footer */
+.repo-section {
+  background: var(--ink); color: var(--paper); padding: 64px 0;
+}
+.repo-section h2 { color: var(--gold); font-family: 'Lora', serif; font-style: italic; font-weight: 500; }
+.repo-section code {
+  font-family: 'JetBrains Mono', 'Menlo', monospace; font-size: 13px;
+  background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px;
+}
+.repo-tree {
+  font-family: 'JetBrains Mono', 'Menlo', monospace; font-size: 13px;
+  line-height: 1.7; background: rgba(0,0,0,0.3); padding: 24px;
+  border-radius: 10px; margin: 24px 0; overflow-x: auto;
+  color: rgba(255,255,255,0.85);
+}
+.repo-tree .dir { color: var(--gold); }
+.repo-tree .file { color: rgba(255,255,255,0.95); }
+.repo-tree .comment { color: rgba(255,255,255,0.45); font-style: italic; }
+
+/* Footer */
+footer { padding: 40px 0; text-align: center; opacity: 0.5; font-size: 13px; }
+footer a { font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="topbar__brand" href="./index.html">
+      <svg viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2"/>
+        <path d="M10 16c0-3 2-6 6-6s6 3 6 6" stroke="#e0a93b" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="16" cy="20" r="2" fill="currentColor"/>
+      </svg>
+      <span>Sisi Lola Studio</span>
+    </a>
+    <nav class="topbar__nav">
+      <a href="#pipeline">Pipeline</a>
+      <a href="#episodes">Episodes</a>
+      <a href="#scripts">Scripts</a>
+      <a href="#voice">Voice</a>
+      <a href="./index.html">← Live Site</a>
+    </nav>
+  </div>
+</header>
+
+<section class="studio-hero">
+  <div class="container">
+    <div class="studio-hero__eyebrow">The Control Room <span>—</span> Ìyàrá Ìṣe</div>
+    <h1 class="studio-hero__title">
+      Where Sisi Lola's <span class="accent">voice</span> is born,<br>
+      and every <span class="accent">story</span> is shaped.
+    </h1>
+    <p class="studio-hero__sub">
+      Every episode you hear is hand-crafted here — from native Yoruba speaker references, to Yorunglish scripts with full diacritical marks, to the moment Sisi Lola finally speaks in her own voice. This is the pipeline behind the magic.
+    </p>
+    <div class="studio-hero__stats">
+      <div class="studio-hero__stat">
+        <span class="studio-hero__stat-num">3</span>
+        <span class="studio-hero__stat-label">Episodes Live</span>
+      </div>
+      <div class="studio-hero__stat">
+        <span class="studio-hero__stat-num">8</span>
+        <span class="studio-hero__stat-label">Native Speakers</span>
+      </div>
+      <div class="studio-hero__stat">
+        <span class="studio-hero__stat-num">75s</span>
+        <span class="studio-hero__stat-label">Voice Reference</span>
+      </div>
+      <div class="studio-hero__stat">
+        <span class="studio-hero__stat-num">100%</span>
+        <span class="studio-hero__stat-label">Owned Stack</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pipeline">
+  <div class="container">
+    <div class="section__head">
+      <div>
+        <p class="section__eyebrow">Production Pipeline</p>
+        <h2 class="section__title">From whispered Yoruba<br>to finished episode</h2>
+      </div>
+      <p class="section__desc">Five stages, fully reproducible from the BAMG-Studio repository. No surprise costs. No external bottleneck. Sisi Lola sounds like Sisi Lola — every time.</p>
+    </div>
+    <div class="pipeline">
+      <div class="stage">
+        <div class="stage__number">Stage 01</div>
+        <h3 class="stage__title">Sourcing</h3>
+        <p class="stage__body">8 native Nigerian female speakers selected from the FLEURS Yoruba dataset. Each sample 24-25 seconds, hand-picked for clarity and prosody.</p>
+        <div class="stage__tech">FLEURS · HF Datasets</div>
+      </div>
+      <div class="stage">
+        <div class="stage__number">Stage 02</div>
+        <h3 class="stage__title">Reference Build</h3>
+        <p class="stage__body">Top 3 speakers merged into a 75-second reference clip, loudness-normalised to -18 LUFS, resampled to 22 kHz mono. The voice DNA of Sisi Lola.</p>
+        <div class="stage__tech">FFmpeg · loudnorm</div>
+      </div>
+      <div class="stage">
+        <div class="stage__number">Stage 03</div>
+        <h3 class="stage__title">Writing</h3>
+        <p class="stage__body">Scripts hand-written in Yorunglish — 60% Pidgin, 30% Yoruba, 10% English — with full diacritical marks so the voice clone gets the tones right.</p>
+        <div class="stage__tech">Yorùbá · Naija Pidgin</div>
+      </div>
+      <div class="stage">
+        <div class="stage__number">Stage 04</div>
+        <h3 class="stage__title">Voice Clone</h3>
+        <p class="stage__body">XTTS-v2 zero-shot clones the native reference. Scripts are chunked into 140-char segments for fast inference. Output is concatenated to one clean audio track.</p>
+        <div class="stage__tech">Coqui XTTS-v2</div>
+      </div>
+      <div class="stage">
+        <div class="stage__number">Stage 05</div>
+        <h3 class="stage__title">Render</h3>
+        <p class="stage__body">Ken-Burns motion across persistent Sisi Lola keyframes, crossfaded mid-episode, synced to the native audio. 1080p H.264 ready for the web.</p>
+        <div class="stage__tech">FFmpeg · zoompan · xfade</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="episodes">
+  <div class="container">
+    <div class="section__head">
+      <div>
+        <p class="section__eyebrow">The Episodes</p>
+        <h2 class="section__title">Three voices.<br>One Sisi Lola.</h2>
+      </div>
+      <p class="section__desc">Native-voice re-records of the first three episodes. Pure pidgin English carrying real Yoruba pronunciation — finally the way Mama would say it.</p>
+    </div>
+
+    <div class="episodes-grid">
+      <article class="episode-card">
+        <video controls preload="metadata" poster="./assets/sisi-lola-avatar.png">
+          <source src="./assets/ep1-video.mp4" type="video/mp4">
+        </video>
+        <div class="episode-card__body">
+          <span class="episode-card__tag">Episode 01 · Hustle</span>
+          <h3 class="episode-card__title"><span class="yoruba">No Give Up</span></h3>
+          <p style="margin:8px 0 12px;opacity:.78;font-size:14px;">For every Naija pikin chasing dreams across timezones — Sisi Lola dey tell you to hold am tight, no let am go.</p>
+          <div class="episode-card__meta">
+            <span>⏱ 2:03</span>
+            <span>🎙 Native voice</span>
+          </div>
+          <audio class="episode-card__audio" controls src="./assets/ep1-hustle.mp3"></audio>
+        </div>
+      </article>
+
+      <article class="episode-card">
+        <video controls preload="metadata" poster="./assets/sisi-lola-avatar.png">
+          <source src="./assets/ep2-video.mp4" type="video/mp4">
+        </video>
+        <div class="episode-card__body">
+          <span class="episode-card__tag">Episode 02 · Culture</span>
+          <h3 class="episode-card__title"><span class="yoruba">Chop Life</span></h3>
+          <p style="margin:8px 0 12px;opacity:.78;font-size:14px;">A love letter to Naija food. Jollof, egusi, suya — every plate carries a story, and Sisi Lola want you to taste the whole thing.</p>
+          <div class="episode-card__meta">
+            <span>⏱ 2:08</span>
+            <span>🎙 Native voice</span>
+          </div>
+          <audio class="episode-card__audio" controls src="./assets/ep2-food.mp3"></audio>
+        </div>
+      </article>
+
+      <article class="episode-card">
+        <video controls preload="metadata" poster="./assets/sisi-lola-avatar.png">
+          <source src="./assets/ep3-video.mp4" type="video/mp4">
+        </video>
+        <div class="episode-card__body">
+          <span class="episode-card__tag">Episode 03 · Language</span>
+          <h3 class="episode-card__title"><span class="yoruba">Èdè Wa</span></h3>
+          <p style="margin:8px 0 12px;opacity:.78;font-size:14px;">Our language, our pride. Sisi Lola dey beg you — speak Yoruba, Igbo, Hausa, Edo. No let am die. Èdè wa, ìgbéraga wa.</p>
+          <div class="episode-card__meta">
+            <span>⏱ 2:11</span>
+            <span>🎙 Native voice</span>
+          </div>
+          <audio class="episode-card__audio" controls src="./assets/ep3-language.mp3"></audio>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="scripts">
+  <div class="container">
+    <div class="section__head">
+      <div>
+        <p class="section__eyebrow">The Words</p>
+        <h2 class="section__title">Every script,<br>preserved with care.</h2>
+      </div>
+      <p class="section__desc">The full Yorunglish text, diacritics and all. This is what feeds the voice clone — what makes ọ̀rọ̀ sound like ọ̀rọ̀, not "oro".</p>
+    </div>
+
+    <div class="script-tabs">
+      <button class="script-tab active" data-tab="ep1">EP01 · No Give Up</button>
+      <button class="script-tab" data-tab="ep2">EP02 · Chop Life</button>
+      <button class="script-tab" data-tab="ep3">EP03 · Èdè Wa</button>
+    </div>
+
+    <div class="script-pane" id="script-display">
+      <p class="script-pane__label" id="script-label">Episode 01 — No Give Up</p>
+      <pre id="script-content">Loading...</pre>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="voice">
+  <div class="container">
+    <div class="section__head">
+      <div>
+        <p class="section__eyebrow">The Voice DNA</p>
+        <h2 class="section__title">Listen to the source.</h2>
+      </div>
+      <p class="section__desc">75 seconds of pure native Yoruba — three women, three voices, one Sisi Lola. This is the reference clip that teaches the model how to pronounce every Yoruba word she ever speaks.</p>
+    </div>
+
+    <div class="voice-card">
+      <div>
+        <h3 class="voice-card__title">Sisi Lola native reference</h3>
+        <p class="voice-card__desc">Three native Nigerian female speakers from the FLEURS Yoruba corpus, sequenced with 0.3-second breath gaps and loudness-normalised. This is what XTTS-v2 hears before it clones the voice.</p>
+        <div class="voice-card__meta">
+          <div class="voice-card__stat"><strong>75.0s</strong><span>Total Duration</span></div>
+          <div class="voice-card__stat"><strong>22.05 kHz</strong><span>Sample Rate</span></div>
+          <div class="voice-card__stat"><strong>3 voices</strong><span>Source Speakers</span></div>
+          <div class="voice-card__stat"><strong>−18 LUFS</strong><span>Loudness</span></div>
+        </div>
+      </div>
+      <div>
+        <audio controls preload="metadata" style="width:100%;">
+          <source src="./assets/sisi_lola_native_yoruba_reference.wav" type="audio/wav">
+        </audio>
+        <p style="opacity:0.7;font-size:12px;margin-top:8px;">Source: Google FLEURS (CC-BY-4.0)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="repo-section">
+  <div class="container">
+    <p class="section__eyebrow" style="color:var(--gold);">The Repository</p>
+    <h2 class="section__title">Built once. Reproducible forever.</h2>
+    <p style="opacity:0.8;max-width:680px;margin-top:12px;">
+      Every script, every reference clip, every line of synthesis code is committed to <code>BAMG-Studio/sisi-lola-project</code> on GitHub. If something needs to change, change the script, run the pipeline, and Sisi Lola records again in her own voice.
+    </p>
+
+<div class="repo-tree">
+<span class="dir">04_AUDIO_CORE/native_voice_pipeline/</span>
+├── <span class="file">README.md</span>                              <span class="comment">— full pipeline docs</span>
+├── <span class="file">select_targets.py</span>                      <span class="comment">— pick native FLEURS speakers</span>
+├── <span class="file">extract_targets.py</span>                     <span class="comment">— stream WAVs from HuggingFace</span>
+├── <span class="file">synth_chunked.py</span>                       <span class="comment">— XTTS-v2 zero-shot synth</span>
+├── <span class="file">targets.txt</span>                            <span class="comment">— selected speaker manifest</span>
+├── <span class="dir">references/</span>
+│   ├── <span class="file">sisi_lola_native_yoruba_reference.wav</span>  <span class="comment">— combined voice DNA</span>
+│   └── <span class="file">fleurs_yo_spk*.wav</span>                 <span class="comment">— 8 raw native speakers</span>
+├── <span class="dir">scripts/</span>
+│   ├── <span class="file">ep1-no-give-up.txt</span>
+│   ├── <span class="file">ep2-chop-life.txt</span>
+│   └── <span class="file">ep3-ede-wa.txt</span>
+├── <span class="dir">output/</span>
+│   ├── <span class="file">ep1-hustle.mp3</span>
+│   ├── <span class="file">ep2-food.mp3</span>
+│   └── <span class="file">ep3-language.mp3</span>
+└── <span class="dir">renderer/</span>
+    └── <span class="file">render_videos.py</span>                   <span class="comment">— Ken-Burns + audio sync</span>
+</div>
+
+    <p style="font-size:14px;opacity:0.78;">
+      Submit a pull request. Generate a new episode. Spin up a fresh native reference. The whole pipeline runs in under thirty minutes on a single CPU.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <p>
+    Sisi Lola Studio · Africa's digital auntie · Crafted with intention in 2026.
+    <br>
+    <a href="./index.html">← Back to the live site</a>
+  </p>
+</footer>
+
+<script>
+const scripts = {
+  ep1: { label: 'Episode 01 — No Give Up', src: 'scripts/ep1-no-give-up.txt' },
+  ep2: { label: 'Episode 02 — Chop Life', src: 'scripts/ep2-chop-life.txt' },
+  ep3: { label: 'Episode 03 — Èdè Wa', src: 'scripts/ep3-ede-wa.txt' }
+};
+
+async function loadScript(key) {
+  const meta = scripts[key];
+  document.getElementById('script-label').textContent = meta.label;
+  try {
+    const r = await fetch(meta.src);
+    const text = await r.text();
+    document.getElementById('script-content').textContent = text;
+  } catch (e) {
+    document.getElementById('script-content').textContent = '(could not load script)';
+  }
+}
+
+document.querySelectorAll('.script-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.script-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadScript(btn.dataset.tab);
+  });
+});
+
+loadScript('ep1');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,88 @@
+# Curated high-quality Yoruba/Pidgin/Nigerian audio sources for Sisi Lola corpus expansion.
+# v2 — refined for 8-hour cadence with strict quality gating.
+# Tier A = highest priority; female, mature, native-fluent, urban Nigerian.
+
+youtube_channels:
+  # Tier A — News, talk shows, interviews (clean studio audio, native female speakers)
+  - handle: "@bbcnewsyoruba"
+    tier: A
+    notes: "BBC News Yorùbá — daily news, native female anchors"
+  - handle: "@tvcnewsnigeria"
+    tier: A
+    notes: "TVC News — Yoruba bulletins, female presenters"
+  - handle: "@channelstelevision"
+    tier: B
+    notes: "Channels TV — occasional Yoruba"
+  # Tier C removed: BBCAfrica had near-zero Yoruba yield.
+
+youtube_search:
+  # Refined for native Yoruba conversational speech, female speaker bias
+  - query: "ìròyìn ọmọbìnrin yorùbá"   # Yoruba women's news
+    lang: yo
+    tier: A
+  - query: "ọmọbìnrin yorùbá ìjíròrò"   # Yoruba women conversation
+    lang: yo
+    tier: A
+  - query: "yoruba women interview"
+    lang: yo
+    tier: A
+  - query: "iroyin yoruba aaro yi"      # Yoruba news this morning
+    lang: yo
+    tier: A
+  - query: "yoruba podcast obirin"
+    lang: yo
+    tier: A
+  # Removed low-yield: nollywood movies (music + male dialogue), sermons (often monotone)
+
+# RSS / podcast feeds
+podcast_feeds:
+  - name: "BBC News Yoruba"
+    url: https://feeds.bbci.co.uk/yoruba/rss.xml
+    tier: A
+  - name: "BBC News Pidgin"
+    url: https://feeds.bbci.co.uk/pidgin/rss.xml
+    tier: B
+  - name: "VOA Hausa Africa"
+    url: https://www.voahausa.com/api/zpqyqveuyit
+    tier: C   # Hausa not Yoruba, kept low priority for accent dilution check only
+
+# Live radio streams — captured in 90-second slices each run.
+# Highest-yield source: 24/7 talk + news, no bot challenge.
+radio_streams:
+  - name: "Afrikana Radio"
+    url: https://radio.afrikanabestsounds.com/listen/live_african/radio.mp3
+    tier: A
+    capture_seconds: 90
+    notes: "Primary yield source — confirmed female native talk segments"
+  - name: "Trove Radio Station"
+    url: https://stream.zeno.fm/c4ghegiwnkcvv
+    tier: B
+    capture_seconds: 90
+    notes: "Mixed gender, lower yield"
+  # New A-tier candidates to probe (verified live as of June 2026):
+  - name: "Bond FM Lagos (Yoruba talk)"
+    url: https://stream.zeno.fm/9zaaa3kkpqzuv
+    tier: A
+    capture_seconds: 90
+    notes: "Lagos talk radio with Yoruba segments"
+  - name: "Splash FM Ibadan"
+    url: https://stream.zeno.fm/dcahrabu61tvv
+    tier: A
+    capture_seconds: 90
+    notes: "Ibadan FM — strong Yoruba programming"
+
+# Quality knobs — TIGHTENED for 8-hour cadence quality-over-quantity
+quality:
+  min_clip_sec: 5
+  max_clip_sec: 30
+  min_snr_db: 18           # was 15 — stricter
+  yoruba_lang_conf: 0.80   # was 0.75
+  prefer_female: true
+  pitch_min_hz: 145        # was 140 — tighter female-only
+  pitch_max_hz: 275        # was 280
+  speaker_similarity_to_w8mq2: 0.40   # was 0.30 — higher bar for archetype match
+  enable_fluency_scoring: true        # auto-score each accepted clip via fluency_metric_v2
+  min_fluency_score: 75               # reject clips that score below this on the fluency metric
+
+# Sources retired (kept here as documentation):
+# - YouTube Data API search via Pipedream — yielded 0 incremental sources beyond yt-dlp across 27 hourly runs.

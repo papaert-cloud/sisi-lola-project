@@ -1,0 +1,71 @@
+# Sisi Lola V5 — Reference Weight Policy
+# Per user direction (2026-06-24):
+#   "V4 EP2 (Chop Life) is our strongest sample till date but not quite near there.
+#    Scale it back to 25% and try female voice (source for best to build on)"
+#
+# Calibrated against fluency_metric_v2 (W8MQ2 native anchor = 100.0).
+
+version: 5
+schema: weighted_multi_reference
+generated_at: 2026-06-24T05:14:00Z
+fluency_anchor: W8MQ2 (mean 95.9, native baseline)
+
+references:
+  # PRIMARY — confirmed native female Yoruba, highest fluency baseline
+  - id: W8MQ2
+    weight: 0.50
+    clip_pool: /home/user/workspace/voice-clone/single_speaker_corpus/audio/W8MQ2__*.wav
+    canonical_clip: W8MQ2__0_00000__r00368.wav  # 8.76s, score 100.0
+    role: primary_voice_identity
+    fluency_mean: 95.9
+    notes: |
+      Down from 100% in V4. Remains anchor for voice timbre and prosody.
+      12.29 min / 155 clips available.
+
+  # SECONDARY — second-best native female candidate (newly sourced for V5)
+  - id: HZM4L
+    weight: 0.25
+    clip_pool: /home/user/workspace/voice-clone/single_speaker_corpus/audio/HZM4L__*.wav
+    canonical_clip: HZM4L__0_00003__r01195.wav  # 3.1s, score 99.9
+    role: secondary_voice_blend
+    fluency_mean: 92.2
+    notes: |
+      Smaller pool (2.40 min / 36 clips) but high quality — multiple NATIVE-tier samples.
+      Used to add tonal variation and reduce overfit to W8MQ2.
+
+  # ANCHOR — V4 EP2 "strongest sample" de-emphasized per user
+  - id: V4_EP2_CHOP_LIFE
+    weight: 0.25
+    clip_pool: /home/user/workspace/voice-clone/output_v4/ep2_*.wav
+    canonical_clip: /home/user/workspace/voice-clone/output_v4/ep2_chop_life.wav
+    role: style_anchor_only
+    fluency_score: 95.3  # high outlier from V4 batch
+    notes: |
+      Scaled back from implicit 100% anchor in V4 to 25%.
+      Retained for episodic style continuity but no longer the primary reference.
+
+# Rejected candidates
+rejected:
+  - id: OZCG2
+    reason: |
+      Lower fluency baseline (mean 88.0 vs HZM4L 92.2). Larger pool (9.78 min)
+      but quality-per-minute insufficient. Keep in archive for future expansion
+      only if HZM4L proves too narrow.
+
+# Synthesis strategy
+synth:
+  method: weighted_reference_sampling
+  description: |
+    For each generation, the F5-TTS synth script (scripts/11_f5tts_yoruba_synth.py)
+    samples one reference clip per call. The sampler weights the candidate pools
+    by the weights above, then picks a clip whose duration ≤ 10s from the chosen pool.
+
+  implementation_hook: scripts/11_f5tts_yoruba_synth.py:select_reference()
+  random_seed_per_episode: true  # reproducibility — same seed → same ref selection
+
+# Validation gates (applied at generation time)
+validation:
+  min_composite_score: 75
+  min_speaker_sim_to_W8MQ2: 0.40
+  max_pitch_drift_hz: 30
+  reject_action: regenerate_with_alt_reference
